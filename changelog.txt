@@ -1,3 +1,5 @@
+[B]0.0.3:[/B]
+Show plot where present (not all skins support this)
 [B]0.0.2:[/B]
 Code cleanup
 Show video durations

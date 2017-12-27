@@ -59,13 +59,14 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="search_main">', '<div id="nv">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)<'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
+            item['plot'] = m.group('plot')
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'}}
             self._filter(result, item)
@@ -144,12 +145,13 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="browsing_main">', '<div id="fc">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)<'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
+            item['plot'] = m.group('plot')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'}}
