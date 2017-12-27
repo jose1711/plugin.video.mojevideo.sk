@@ -1,2 +1,6 @@
+[B]0.0.2:[/B]
+Code cleanup
+Show video durations
+Add prev/next buttons for the latest videos list
 [B]0.0.1:[/B]
 Initial version

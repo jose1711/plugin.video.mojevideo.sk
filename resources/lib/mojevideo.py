@@ -1,7 +1,5 @@
 # -*- coding: UTF-8 -*-
 # /*
-# *      Copyright (C) 2017 BrozikCZ
-# *
 # *
 # *  This Program is free software; you can redistribute it and/or modify
 # *  it under the terms of the GNU General Public License as published by
@@ -61,12 +59,13 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="search_main">', '<div id="nv">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)"'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
+            item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'}}
             self._filter(result, item)
@@ -110,12 +109,13 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<div id="cntnt">', '<div id="fc">')
-        pattern = '<a href="(?P<url>/video/[^"]+)"[^<]*<img src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"'
+        pattern = '<a href="(?P<url>/video/[^"]+)"[^<]*<img src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)".*?<div>(?P<duration>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
+            item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'}}
             self._filter(result, item)
@@ -133,32 +133,24 @@ class MojevideoContentProvider(ContentProvider):
             item['url'] = n.group('url')
             result.append(item)
 
-        data = util.substr(page, '<ul class=\"easy-wp-page-nav', '</div>')
-        n = re.search('<li><a class=\"prev page-numbers\" href=\"(?P<url>[^\"]+)\"', data)
-        k = re.search('<li><a class=\"next page-numbers\" href=\"(?P<url>[^\"]+)\"', data)
-        if n is not None:
-            item = self.dir_item()
-            item['type'] = 'prev'
-            item['url'] = n.group('url')
-            result.append(item)
-        if k is not None:
-            item = self.dir_item()
-            item['type'] = 'next'
-            item['url'] = k.group('url')
-            result.append(item)
         return result
+
+    def mmss_to_seconds(self, mmss):
+        minutes, seconds = [int(x) for x in mmss.split(':')]
+        return (minutes * 60 + seconds)
 
     def list_newest(self, page, url=None):
         result = []
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="browsing_main">', '<div id="fc">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)"'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
+            item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'}}
             self._filter(result, item)
@@ -176,18 +168,20 @@ class MojevideoContentProvider(ContentProvider):
             item['url'] = n.group('url')
             result.append(item)
 
-        data = util.substr(page, '<ul class=\"easy-wp-page-nav', '</div>')
-        n = re.search('<li><a class=\"prev page-numbers\" href=\"(?P<url>[^\"]+)\"', data)
-        k = re.search('<li><a class=\"next page-numbers\" href=\"(?P<url>[^\"]+)\"', data)
-        if n is not None:
-            item = self.dir_item()
-            item['type'] = 'prev'
-            item['url'] = n.group('url')
-            result.append(item)
-        if k is not None:
+        k = re.search('<a href="(?P<url>[^"]+)" title="nasledujúca strana" rel="next"', page)
+        n = re.search('<a href="(?P<url>[^"]+)" title="predošlá strana" rel="prev"', page)
+        if k:
             item = self.dir_item()
             item['type'] = 'next'
-            item['url'] = k.group('url')
+            item['url'] = '#newest#' + k.group('url')
+            result.append(item)
+        if n:
+            item = self.dir_item()
+            item['type'] = 'prev'
+            if n.group('url') in '//www.mojevideo.sk/':
+                item['url'] = '#newest#'
+            else:
+                item['url'] = '#newest#' + n.group('url')
             result.append(item)
         return result
 
