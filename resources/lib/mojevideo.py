@@ -22,6 +22,7 @@ import re
 import urllib
 import urllib2
 import cookielib
+import xbmcaddon
 from xml.etree.ElementTree import fromstring
 from demjson import demjson
 
@@ -29,6 +30,9 @@ import util
 import resolver
 from provider import ResolveException
 from provider import ContentProvider
+
+
+__addon__ = xbmcaddon.Addon()
 
 
 class MojevideoContentProvider(ContentProvider):
@@ -44,10 +48,13 @@ class MojevideoContentProvider(ContentProvider):
         return ['categories', 'resolve', 'search']
 
     def list(self, url):
+        print('xxx url: %s' % url)
         if url.find("#related#") == 0:
             return self.list_related(util.request(self._url(url[9:])))
         elif url.find("#newest#") == 0:
             return self.list_newest(util.request(self._url(url[8:])))
+        elif "srch/" in url:
+            return self.list_searchresults(util.request(self._url(url)))
         else:
             return self.list_content(util.request(self._url(url)), self._url(url))
 
@@ -58,9 +65,12 @@ class MojevideoContentProvider(ContentProvider):
         result = []
         if not url:
             url = self.base_url
-        data = util.substr(page, '<ul id="search_main">', '<div id="nv">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
+        data = util.substr(page, '<ul id="search_', '<div id="nv">')
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
+            over18 = __addon__.getSetting('over18')
+            if 'id="im' in m.group('id') and not (over18 == 'true'):
+                continue
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
@@ -102,6 +112,12 @@ class MojevideoContentProvider(ContentProvider):
             item = self.dir_item()
             item['title'] = m.group('name')
             item['url'] = m.group('url')
+            result.append(item)
+        over18 = __addon__.getSetting('over18')
+        if (over18 == 'true'):
+            item = self.dir_item()
+            item['title'] = 'erotika'
+            item['url'] = self.base_url + '/erotika'
             result.append(item)
         return result
 
@@ -145,9 +161,12 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="browsing_main">', '<div id="fc">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+)".*?<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
+            over18 = __addon__.getSetting('over18')
+            if 'id="im' in m.group('id') and not (over18 == 'true'):
+                continue
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
@@ -192,12 +211,14 @@ class MojevideoContentProvider(ContentProvider):
         data = util.substr(page,
                            '<div id="video_sim">',
                            '</div')
-        pattern = '<a href="(?P<url>[^"]+)"[^<]+<img src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"'
+        pattern = '<a href="(?P<url>[^"]+)"[^<]+<img src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"(?P<id> id="im0")?'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
+            if m.group('id'):
+                continue
             self._filter(result, item)
         return result
 
@@ -213,8 +234,17 @@ class MojevideoContentProvider(ContentProvider):
 
         vid = re.search('vId=([0-9]+)', data).group(1)
         video_url = 'https://cache01.mojevideo.sk/securevideos69/'
+        quality = int(re.search('vVq=([0-9]+)', data).group(1))
         video_url += vid
-        video_url += '.mp4'
+        quality_string = ['_lq', '', '_hd']
+        if quality > 0:
+            selected_quality = int(__addon__.getSetting('quality'))
+            resulting_quality = min(selected_quality, quality)
+            qstring = quality_string[resulting_quality]
+            video_url += '{0}.mp4'.format(qstring)
+
+        else:
+            video_url += '.mp4'
 
         resolved += video_url[:]
 
