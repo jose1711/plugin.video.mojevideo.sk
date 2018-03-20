@@ -48,7 +48,6 @@ class MojevideoContentProvider(ContentProvider):
         return ['categories', 'resolve', 'search']
 
     def list(self, url):
-        print('xxx url: %s' % url)
         if url.find("#related#") == 0:
             return self.list_related(util.request(self._url(url[9:])))
         elif url.find("#newest#") == 0:
@@ -236,7 +235,7 @@ class MojevideoContentProvider(ContentProvider):
         video_url = 'https://cache01.mojevideo.sk/securevideos69/'
         quality = int(re.search('vVq=([0-9]+)', data).group(1))
         video_url += vid
-        quality_string = ['_lq', '', '_hd']
+        quality_string = ['_lq', '', '_hd', '_fhd']
         if quality > 0:
             selected_quality = int(__addon__.getSetting('quality'))
             resulting_quality = min(selected_quality, quality)
