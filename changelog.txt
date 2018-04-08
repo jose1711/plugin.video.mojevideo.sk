@@ -1,3 +1,5 @@
+[B]0.0.6:[/B]
+Enable comments display (top level only)
 [B]0.0.5:[/B]
 Enable 1080p
 [B]0.0.4:[/B]

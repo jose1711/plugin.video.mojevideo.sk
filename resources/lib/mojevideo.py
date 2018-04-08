@@ -23,6 +23,7 @@ import urllib
 import urllib2
 import cookielib
 import xbmcaddon
+import xbmcgui
 from xml.etree.ElementTree import fromstring
 from demjson import demjson
 
@@ -52,6 +53,8 @@ class MojevideoContentProvider(ContentProvider):
             return self.list_related(util.request(self._url(url[9:])))
         elif url.find("#newest#") == 0:
             return self.list_newest(util.request(self._url(url[8:])))
+        elif url.find("#comments#") == 0:
+            return self.show_comments(self._url(url[10:]))
         elif "srch/" in url:
             return self.list_searchresults(util.request(self._url(url)))
         else:
@@ -59,6 +62,39 @@ class MojevideoContentProvider(ContentProvider):
 
     def search(self, keyword):
         return self.list_searchresults(util.request(self._url('/srch/' + urllib.quote(keyword))))
+
+    def base36encode(self, number, alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
+        """Converts an integer to a base36 string."""
+        if not isinstance(number, int):
+            raise TypeError('number (%s) must be an integer' % number)
+        base36 = ''
+        sign = ''
+        if number < 0:
+            sign = '-'
+            number = -number
+        if 0 <= number < len(alphabet):
+            return sign + alphabet[number]
+        while number != 0:
+            number, i = divmod(number, len(alphabet))
+            base36 = alphabet[i] + base36
+        return sign + base36
+
+    def base36decode(self, number):
+        return int(number, 36)
+
+    def get_comments(self, pagenum):
+        data = util.request('https://m.mojevideo.sk/%s' % pagenum)
+        data = util.substr(data, '<ul id="video_comm"', '</div>')
+        return data
+
+    def show_comments(self, page):
+        pagenum = self.base36encode(int(page.split('/')[4], 16))
+        comments = self.get_comments(pagenum)
+        comments = re.sub(r'<br>', '\n', comments)
+        comments = re.sub(r'<p>', '\n\n', comments)
+        comments = re.sub(r'<.*?>', '', comments)
+        xbmcgui.Dialog().textviewer('Komentáre', comments)
+        return []
 
     def list_searchresults(self, page, url=None):
         result = []
@@ -77,7 +113,10 @@ class MojevideoContentProvider(ContentProvider):
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['plot'] = m.group('plot')
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
-                                       'action-type': 'list'}}
+                                       'action-type': 'list'},
+                            'Komentáre': {'list': '#comments#' + item['url'],
+                                          'action-type': 'show_comments'}
+                            }
             self._filter(result, item)
 
         data = util.substr(page, '<div id="nv">', '<div class="r">')
@@ -133,7 +172,10 @@ class MojevideoContentProvider(ContentProvider):
             item['url'] = m.group('url')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
-                                       'action-type': 'list'}}
+                                       'action-type': 'list'},
+                            'Komentáre': {'list': '#comments#' + item['url'],
+                                           'action-type': 'show_comments'}
+                            }
             self._filter(result, item)
 
         n = re.search('<a href="(?P<url>[^"]+)"[^>]+>Ďalej', page)
@@ -172,7 +214,10 @@ class MojevideoContentProvider(ContentProvider):
             item['plot'] = m.group('plot')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
-                                       'action-type': 'list'}}
+                                       'action-type': 'list'},
+                            'Komentáre': {'list': '#comments#' + item['url'],
+                                          'action-type': 'show_comments'}
+                            }
             self._filter(result, item)
 
         n = re.search('<a href="(?P<url>[^"]+)"[^>]+>Ďalej', page)
