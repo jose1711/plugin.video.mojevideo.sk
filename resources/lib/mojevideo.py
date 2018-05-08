@@ -174,7 +174,7 @@ class MojevideoContentProvider(ContentProvider):
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'},
                             'Komentáre': {'list': '#comments#' + item['url'],
-                                           'action-type': 'show_comments'}
+                                          'action-type': 'show_comments'}
                             }
             self._filter(result, item)
 
@@ -194,8 +194,12 @@ class MojevideoContentProvider(ContentProvider):
         return result
 
     def mmss_to_seconds(self, mmss):
-        minutes, seconds = [int(x) for x in mmss.split(':')]
-        return (minutes * 60 + seconds)
+        hours = 0
+        if len(mmss.split(':')) > 2:
+            hours, minutes, seconds = [int(x) for x in mmss.split(':')]
+        else:
+            minutes, seconds = [int(x) for x in mmss.split(':')]
+        return (hours * 3600 + minutes * 60 + seconds)
 
     def list_newest(self, page, url=None):
         result = []
