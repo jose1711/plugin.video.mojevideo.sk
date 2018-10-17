@@ -55,6 +55,8 @@ class MojevideoContentProvider(ContentProvider):
             return self.list_newest(util.request(self._url(url[8:])))
         elif url.find("#comments#") == 0:
             return self.show_comments(self._url(url[10:]))
+        elif url.find("#show_plot#") == 0:
+            return self.show_plot(self._url(url[11:]))
         elif "srch/" in url:
             return self.list_searchresults(util.request(self._url(url)))
         else:
@@ -96,6 +98,20 @@ class MojevideoContentProvider(ContentProvider):
         xbmcgui.Dialog().textviewer('Komentáre', comments)
         return []
 
+    def show_plot(self, page):
+        pagenum = self.base36encode(int(page.split('/')[4], 16))
+        data = util.request('https://m.mojevideo.sk/%s' % pagenum)
+        data = util.substr(data, '<div id="video_info">', '<div id="video_stats">')
+        print(data)
+        plot = re.search(r'<p>(.*?)</p>', data, re.DOTALL)
+        if plot:
+            plot = plot.group(1)
+        else:
+            plot = '-- undefined --'
+        print(plot)
+        xbmcgui.Dialog().textviewer('Popis', plot)
+        return []
+
     def list_searchresults(self, page, url=None):
         result = []
         if not url:
@@ -112,6 +128,7 @@ class MojevideoContentProvider(ContentProvider):
             item['url'] = m.group('url')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['plot'] = m.group('plot')
+            item['info'] = m.group('plot')
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'},
                             'Komentáre': {'list': '#comments#' + item['url'],
@@ -165,6 +182,7 @@ class MojevideoContentProvider(ContentProvider):
             url = self.base_url
         data = util.substr(page, '<div id="cntnt">', '<div id="fc">')
         pattern = '<a href="(?P<url>/video/[^"]+)"[^<]*<img src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)".*?<div>(?P<duration>[^<]+)<'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
@@ -216,11 +234,14 @@ class MojevideoContentProvider(ContentProvider):
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
             item['plot'] = m.group('plot')
+            item['info'] = m.group('plot')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'},
                             'Komentáre': {'list': '#comments#' + item['url'],
-                                          'action-type': 'show_comments'}
+                                          'action-type': 'show_comments'},
+                            'Popis': {'list': '#show_plot#' + item['url'],
+                                      'action-type': 'show_plot'}
                             }
             self._filter(result, item)
 

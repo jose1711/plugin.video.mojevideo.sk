@@ -1,3 +1,5 @@
+[B]0.0.9:[/B]
+Show plot + improve compatibility with Confluence skin
 [B]0.0.8:[/B]
 Add missing l10n strings
 [B]0.0.7:[/B]

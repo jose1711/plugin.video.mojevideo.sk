@@ -114,6 +114,7 @@ class MojevideoXBMCContentProvider(xbmcprovider.XBMCMultiResolverContentProvider
         except ResolveException, e:
             self._handle_exc(e)
 
+xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
 params = util.params()
 if params == {}:
