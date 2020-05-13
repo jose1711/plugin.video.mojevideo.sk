@@ -302,7 +302,7 @@ class MojevideoContentProvider(ContentProvider):
         print('data end ----')
 
         vid = re.search('vId=([0-9]+)', data).group(1)
-        video_url = 'https://cache01.mojevideo.sk/securevideos69/'
+        video_url = 'https://cache02.mojevideo.sk/securevideos69/'
         quality = int(re.search('vVq=([0-9]+)', data).group(1))
         video_url += vid
         quality_string = ['_lq', '', '_hd', '_fhd']
