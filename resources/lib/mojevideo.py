@@ -182,7 +182,7 @@ class MojevideoContentProvider(ContentProvider):
             url = self.base_url
         data = util.substr(page, '<div id="cntnt">', '<div id="fc">')
         pattern = '<a href="(?P<url>/video/[^"]+)"[^<]*<img src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)".*?<div>(?P<duration>[^<]+)<'
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
+        # pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
@@ -302,24 +302,31 @@ class MojevideoContentProvider(ContentProvider):
         print('data end ----')
 
         vid = re.search('vId=([0-9]+)', data).group(1)
-        video_url = 'https://cache02.mojevideo.sk/securevideos69/'
-        quality = int(re.search('vVq=([0-9]+)', data).group(1))
-        video_url += vid
-        quality_string = ['_lq', '', '_hd', '_fhd']
-        if quality > 0:
-            selected_quality = int(__addon__.getSetting('quality'))
-            resulting_quality = min(selected_quality, quality)
-            qstring = quality_string[resulting_quality]
-            video_url += '{0}.mp4'.format(qstring)
+        cache_id = re.search(r"vCa='(cache[0-9]+)'", data).group(1)
+        expires = re.search(r"vEx='([0-9]+)'", data).group(1)
+        v36 = re.search(r"v36='([0-9]+)'", data).group(1)
+        vHashes = re.search(r"vHash=\[([^]]+)']", data).group(1).replace("'", '').split(',')
+        quality_sfixes = ['', '_lq', '_hd', '_fhd']
+        
+        # this has no effect
+        selected_quality = int(__addon__.getSetting('quality'))
+        # do not resolve quality if we only have one or two streams
+        # and always go with the first stream ("normal" quality)
+        if len(vHashes) <= 2:
+            video_url = 'https://{cache}.mojevideo.sk/securevideos69/{v36}.mp4?md5={hash_value}&expires={expires}'.format(cache=cache_id, v36=v36, hash_value=vHashes[0], expires=expires)
+            item = self.video_item()
+            item['url'] = video_url
+            item['quality'] = 0
+            item['surl'] = video_url
+            return [item]
 
-        else:
-            video_url += '.mp4'
-
-        resolved += video_url[:]
-
-        item = self.video_item()
-        item['url'] = video_url
-        item['quality'] = 'ukn'
-        item['surl'] = video_url
-        result.append(item)
+        # with > 2 streams use the best quality available
+        for q_index, hash_value in enumerate(vHashes):
+            quality_sfix = quality_sfixes[q_index]
+            video_url = 'https://{cache}.mojevideo.sk/securevideos69/{v36}{quality_sfix}.mp4?md5={hash_value}&expires={expires}'.format(cache=cache_id, v36=v36, quality_sfix=quality_sfix, hash_value=hash_value, expires=expires)
+            item = self.video_item()
+            item['url'] = video_url
+            item['quality'] = q_index
+            item['surl'] = video_url
+            result.append(item)
         return result
