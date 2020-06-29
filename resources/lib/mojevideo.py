@@ -84,17 +84,18 @@ class MojevideoContentProvider(ContentProvider):
     def base36decode(self, number):
         return int(number, 36)
 
-    def get_comments(self, pagenum):
-        data = util.request('https://m.mojevideo.sk/%s' % pagenum)
-        data = util.substr(data, '<ul id="video_comm"', '</div>')
-        return data
-
     def show_comments(self, page):
-        pagenum = self.base36encode(int(page.split('/')[4], 16))
-        comments = self.get_comments(pagenum)
-        comments = re.sub(r'<br>', '\n', comments)
-        comments = re.sub(r'<p>', '\n\n', comments)
-        comments = re.sub(r'<.*?>', '', comments)
+        data = util.parse_html(page)
+        fa = re.search("fa='([^']+)'", str(data.select_one('script[src="/v5.js"]').nextSibling)).group(1)
+        # print('fa={}'.format(fa))
+        comment_page = util.parse_html('https://www.mojevideo.sk/f_xmlhttp.php?p={0}'.format(fa))
+        comments = ''
+        for comment in comment_page.select('.tp'):
+            comment_author = comment.previousSibling.previousSibling.a.text
+            comment_date = comment.previousSibling.previousSibling.span.text
+            comment_text = comment.text
+            indent = (len(list(comment.parents)) - 4)* ' '
+            comments += '{indent}[B]{comment_author}[/B] {comment_date}\n{indent}{comment_text}\n\n'.format(indent=indent, comment_author=comment_author, comment_date=comment_date, comment_text=comment_text)
         xbmcgui.Dialog().textviewer('Komentáre', comments)
         return []
 
