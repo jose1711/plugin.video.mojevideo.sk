@@ -95,7 +95,7 @@ class MojevideoContentProvider(ContentProvider):
             comment_date = comment.previousSibling.previousSibling.span.text
             comment_text = comment.text
             indent = (len(list(comment.parents)) - 4)* ' '
-            comments += '{indent}[B]{comment_author}[/B] {comment_date}\n{indent}{comment_text}\n\n'.format(indent=indent, comment_author=comment_author, comment_date=comment_date, comment_text=comment_text)
+            comments += u'{indent}[B]{comment_author}[/B] {comment_date}\n{indent}{comment_text}\n\n'.format(indent=indent, comment_author=comment_author, comment_date=comment_date, comment_text=comment_text)
         xbmcgui.Dialog().textviewer('Komentáre', comments)
         return []
 
