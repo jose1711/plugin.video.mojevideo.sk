@@ -1,3 +1,5 @@
+[B]0.3.2:[/B]
+Fix comments
 [B]0.3.1:[/B]
 Fix comments for systems with US locale
 [B]0.3.0:[/B]
