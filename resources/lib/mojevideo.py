@@ -118,7 +118,7 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="search_', '<div id="nv">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img data-src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             over18 = __addon__.getSetting('over18')
             if 'id="im' in m.group('id') and not (over18 == 'true'):
