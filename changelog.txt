@@ -1,3 +1,5 @@
+[B]0.3.4:[/B]
+Fix comments listing
 [B]0.3.3:[/B]
 Fix newest listing after website change
 [B]0.3.2:[/B]
