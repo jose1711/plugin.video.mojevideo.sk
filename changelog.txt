@@ -1,3 +1,5 @@
+[B]0.3.9:[/B]
+Fix related videos
 [B]0.3.8:[/B]
 Fix comments and perhaps make them more robust
 towards website changes

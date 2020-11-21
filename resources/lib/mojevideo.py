@@ -284,14 +284,12 @@ class MojevideoContentProvider(ContentProvider):
         data = util.substr(page,
                            '<div id="video_sim">',
                            '</div')
-        pattern = '<a href="(?P<url>[^"]+)"[^<]+<img src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"(?P<id> id="im0")?'
+        pattern = '<a href="(?P<url>[^"]+)"[^<]+<img.*?data-src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
             item['img'] = 'http://' + m.group('img')
             item['url'] = m.group('url')
-            if m.group('id'):
-                continue
             self._filter(result, item)
         return result
 
