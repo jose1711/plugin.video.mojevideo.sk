@@ -86,7 +86,10 @@ class MojevideoContentProvider(ContentProvider):
 
     def show_comments(self, page):
         data = util.parse_html(page)
-        fa = re.search("fa='([^']+)'", str(data.select_one('script[src="/v2.js"]').nextSibling)).group(1)
+        for script in data.select('script'):
+            if re.match(r'/v[0-9].js', str(script.get('src'))):
+                break
+        fa = re.search("fa='([^']+)'", str(script.nextSibling)).group(1)
         # print('fa={}'.format(fa))
         comment_page = util.parse_html('https://www.mojevideo.sk/f_xmlhttp.php?p={0}'.format(fa))
         comments = ''
