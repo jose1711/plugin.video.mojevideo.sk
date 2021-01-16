@@ -305,6 +305,7 @@ class MojevideoContentProvider(ContentProvider):
 
         vid = re.search('vId=([0-9]+)', data).group(1)
         cache_id = re.search(r"vCa='(cache[0-9]+)'", data).group(1)
+        cache_id = cache_id.replace('02', '01')
         expires = re.search(r"vEx='([0-9]+)'", data).group(1)
         v36 = re.search(r"v36='([0-9]+)'", data).group(1)
         vHashes = re.search(r"vHash=\[([^]]+)']", data).group(1).replace("'", '').split(',')
