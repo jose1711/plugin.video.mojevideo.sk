@@ -1,3 +1,5 @@
+[B]0.4.1:[/B]
+Don't show HTML linebreaks in video descriptions
 [B]0.4.0:[/B]
 Quick and dirty fix of playback
 [B]0.3.9:[/B]

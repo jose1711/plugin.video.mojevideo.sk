@@ -112,7 +112,7 @@ class MojevideoContentProvider(ContentProvider):
             plot = plot.group(1)
         else:
             plot = '-- undefined --'
-        print(plot)
+        plot = plot.replace('<br />', '')
         xbmcgui.Dialog().textviewer('Popis', plot)
         return []
 
