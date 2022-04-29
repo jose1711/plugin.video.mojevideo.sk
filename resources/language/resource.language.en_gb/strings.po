@@ -1,0 +1,122 @@
+# Kodi Media Center language file
+# Addon Name: mojevideo.sk
+# Addon id: plugin.video.mojevideo.sk
+# Addon Provider: jose1711
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://forum.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Team-Kodi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "Size of search history"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Video is not available, check[CR]whether it works using web page."
+msgstr ""
+
+msgctxt "#30002"
+msgid "Playing this video[CR]is not yet supported."
+msgstr ""
+
+msgctxt "#30003"
+msgid "[B]Latest episodes[/B]"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Choose video source"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Downloads"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Please setup downloads folder"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Notify when downloading"
+msgstr ""
+
+msgctxt "#30033"
+msgid " - display notification every"
+msgstr ""
+
+msgctxt "#30034"
+msgid "10%"
+msgstr ""
+
+msgctxt "#30035"
+msgid "5%"
+msgstr ""
+
+msgctxt "#30036"
+msgid "1%"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Downloads"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Video quality"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Always ask"
+msgstr ""
+
+msgctxt "#30052"
+msgid "Best"
+msgstr ""
+
+msgctxt "#30053"
+msgid "Worst"
+msgstr ""
+
+msgctxt "#30054"
+msgid "720p"
+msgstr ""
+
+msgctxt "#30055"
+msgid "480p"
+msgstr ""
+
+msgctxt "#30056"
+msgid "360p"
+msgstr ""
+
+msgctxt "#30057"
+msgid "1080p"
+msgstr ""
+
+msgctxt "#30058"
+msgid "Filter vp8 videos"
+msgstr ""
+
+msgctxt "#30059"
+msgid "*Play all*"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Related videos"
+msgstr ""
+
+msgctxt "#30070"
+msgid "Over 18"
+msgstr ""
+
+msgctxt "#31000"
+msgid "Usage of plugin is tracked whenever you play or download video."
+msgstr ""
+

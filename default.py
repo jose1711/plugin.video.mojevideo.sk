@@ -82,11 +82,11 @@ class MojevideoXBMCContentProvider(xbmcprovider.XBMCMultiResolverContentProvider
         stream = self.resolve(item['url'])[0]
         if stream:
             xbmcutil.reportUsage(self.addon_id, self.addon_id + '/play')
-            if 'headers' in stream.keys():
+            if 'headers' in list(stream.keys()):
                 for header in stream['headers']:
                     stream['url'] += '|%s=%s' % (header, stream['headers'][header])
-            print 'Sending %s to player' % stream['url']
-            li = xbmcgui.ListItem(path=stream['url'], iconImage='DefaulVideo.png')
+            print('Sending %s to player' % stream['url'])
+            li = xbmcgui.ListItem(path=stream['url'])
 
             sub = False
             if xbmcaddon.Addon('xbmc.addon').getAddonInfo('version') > "16":
@@ -111,7 +111,7 @@ class MojevideoXBMCContentProvider(xbmcprovider.XBMCMultiResolverContentProvider
 
         try:
             return self.provider.resolve(item)
-        except ResolveException, e:
+        except ResolveException as e:
             self._handle_exc(e)
 
 xbmcplugin.setContent(int(sys.argv[1]), 'movies')

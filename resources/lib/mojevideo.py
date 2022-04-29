@@ -19,9 +19,8 @@
 # */
 
 import re
-import urllib
-import urllib2
-import cookielib
+import urllib.request, urllib.error, urllib.parse
+import http.cookiejar
 import xbmcaddon
 import xbmcgui
 from xml.etree.ElementTree import fromstring
@@ -42,8 +41,8 @@ class MojevideoContentProvider(ContentProvider):
         ContentProvider.__init__(self, 'mojevideo.sk',
                                  'http://www.mojevideo.sk',
                                  username, password, filter, tmp_dir)
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookielib.LWPCookieJar()))
-        urllib2.install_opener(opener)
+        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.LWPCookieJar()))
+        urllib.request.install_opener(opener)
 
     def capabilities(self):
         return ['categories', 'resolve', 'search']
@@ -63,7 +62,7 @@ class MojevideoContentProvider(ContentProvider):
             return self.list_content(util.request(self._url(url)), self._url(url))
 
     def search(self, keyword):
-        return self.list_searchresults(util.request(self._url('/srch/' + urllib.quote(keyword))))
+        return self.list_searchresults(util.request(self._url('/srch/' + urllib.parse.quote(keyword))))
 
     def base36encode(self, number, alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
         """Converts an integer to a base36 string."""
@@ -98,7 +97,7 @@ class MojevideoContentProvider(ContentProvider):
             comment_date = comment.previousSibling.previousSibling.span.text
             comment_text = comment.text
             indent = (len(list(comment.parents)) - 4)* ' '
-            comments += u'{indent}[B]{comment_author}[/B] {comment_date}\n{indent}{comment_text}\n\n'.format(indent=indent, comment_author=comment_author, comment_date=comment_date, comment_text=comment_text)
+            comments += '{indent}[B]{comment_author}[/B] {comment_date}\n{indent}{comment_text}\n\n'.format(indent=indent, comment_author=comment_author, comment_date=comment_date, comment_text=comment_text)
         xbmcgui.Dialog().textviewer('Komentáre', comments)
         return []
 
@@ -312,7 +311,8 @@ class MojevideoContentProvider(ContentProvider):
         quality_sfixes = ['', '_lq', '_hd', '_fhd']
         
         # this has no effect
-        selected_quality = int(__addon__.getSetting('quality'))
+        # selected_quality = 0
+        # selected_quality = int(__addon__.getSetting('quality'))
         # do not resolve quality if we only have one or two streams
         # and always go with the first stream ("normal" quality)
         if len(vHashes) <= 2:
