@@ -23,6 +23,7 @@ import urllib.request, urllib.error, urllib.parse
 import http.cookiejar
 import xbmcaddon
 import xbmcgui
+from bs4 import BeautifulSoup
 from xml.etree.ElementTree import fromstring
 from demjson import demjson
 
@@ -83,14 +84,21 @@ class MojevideoContentProvider(ContentProvider):
     def base36decode(self, number):
         return int(number, 36)
 
+    def fetch_page(self, page):
+        req = urllib.request.Request(page)
+        resp = urllib.request.urlopen(req)
+        httpdata = resp.read().decode('utf-8')
+        resp.close()
+        return httpdata
+
     def show_comments(self, page):
-        data = util.parse_html(page)
+        data = BeautifulSoup(self.fetch_page(page), 'html.parser')
         for script in data.select('script'):
             if re.match(r'/v[0-9].js', str(script.get('src'))):
                 break
         fa = re.search("fa='([^']+)'", str(script.nextSibling)).group(1)
         # print('fa={}'.format(fa))
-        comment_page = util.parse_html('https://www.mojevideo.sk/f_xmlhttp.php?p={0}'.format(fa))
+        comment_page = BeautifulSoup(self.fetch_page('https://www.mojevideo.sk/f_xmlhttp.php?p={0}'.format(fa)), 'html.parser')
         comments = ''
         for comment in comment_page.select('.tp'):
             comment_author = comment.previousSibling.previousSibling.a.text

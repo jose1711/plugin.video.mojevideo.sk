@@ -1,3 +1,5 @@
+[B]0.6.0:[/B]
+Fix comments
 [B]0.5.0:[/B]
 Initial Python3 (Matrix) support
 Known issue: comments are currently broken
