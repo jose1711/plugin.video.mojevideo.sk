@@ -96,7 +96,7 @@ class MojevideoContentProvider(ContentProvider):
         for script in data.select('script'):
             if re.match(r'/v[0-9].js', str(script.get('src'))):
                 break
-        fa = re.search("fa='([^']+)'", str(script.nextSibling)).group(1)
+        fa = re.search("fa='([^']+)'", str(data)).group(1)
         # print('fa={}'.format(fa))
         comment_page = BeautifulSoup(self.fetch_page('https://www.mojevideo.sk/f_xmlhttp.php?p={0}'.format(fa)), 'html.parser')
         comments = ''

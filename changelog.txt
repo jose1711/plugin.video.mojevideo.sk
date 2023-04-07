@@ -1,3 +1,5 @@
+[B]0.7.0:[/B]
+Fix comments (again)
 [B]0.6.0:[/B]
 Fix comments
 [B]0.5.0:[/B]
