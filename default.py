@@ -23,6 +23,7 @@ import xbmcaddon
 import xbmcgui
 import xbmcplugin
 import util
+import xbmcvfs
 import xbmcprovider
 import xbmcutil
 import resolver
@@ -119,4 +120,4 @@ xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 params = util.params()
 if params == {}:
     xbmcutil.init_usage_reporting(__scriptid__)
-MojevideoXBMCContentProvider(mojevideo.MojevideoContentProvider(tmp_dir=xbmc.translatePath(__addon__.getAddonInfo('profile'))), settings, __addon__).run(params)
+MojevideoXBMCContentProvider(mojevideo.MojevideoContentProvider(tmp_dir=xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))), settings, __addon__).run(params)
