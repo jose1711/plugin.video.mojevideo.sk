@@ -316,7 +316,7 @@ class MojevideoContentProvider(ContentProvider):
         expires = re.search(r"vEx='([0-9]+)'", data).group(1)
         v36 = re.search(r"v36='([0-9]+)'", data).group(1)
         vHashes = re.search(r"vHash=\[([^]]+)']", data).group(1).replace("'", '').split(',')
-        quality_sfixes = ['', '_lq', '_hd', '_fhd']
+        quality_sfixes = ['', '_lq', '_hd', '_fhd', '2k']
         
         # this has no effect
         # selected_quality = 0
