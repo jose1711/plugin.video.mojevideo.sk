@@ -128,14 +128,14 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="search_', '<div id="nv">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*? data-src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)">.*?<img src="(?P<img>[^"]+)" alt="[^"]*"(?P<id>[^>]*)>.*?<span>(?P<duration>[^<]+)</span>.*?<p class="c">(?P<plot>[^<]*)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             over18 = __addon__.getSetting('over18')
             if 'id="im' in m.group('id') and not (over18 == 'true'):
                 continue
             item = self.video_item()
             item['title'] = m.group('title')
-            item['img'] = 'http://' + m.group('img')
+            item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['plot'] = m.group('plot')
@@ -197,13 +197,15 @@ class MojevideoContentProvider(ContentProvider):
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
-            item['img'] = 'http://' + m.group('img')
+            item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'},
                             'Komentáre': {'list': '#comments#' + item['url'],
-                                          'action-type': 'show_comments'}
+                                          'action-type': 'show_comments'},
+                            'Popis': {'list': '#show_plot#' + item['url'],
+                                      'action-type': 'show_plot'}
                             }
             self._filter(result, item)
 
@@ -235,14 +237,14 @@ class MojevideoContentProvider(ContentProvider):
         if not url:
             url = self.base_url
         data = util.substr(page, '<ul id="browsing_main">', '<div id="fc">')
-        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*? data-src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
+        pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)">.*?<img src="(?P<img>[^"]+)" alt="[^"]*"(?P<id>[^>]*)>.*?<span>(?P<duration>[^<]+)</span>.*?<p class="c">(?P<plot>[^<]*)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             over18 = __addon__.getSetting('over18')
             if 'id="im' in m.group('id') and not (over18 == 'true'):
                 continue
             item['title'] = m.group('title')
-            item['img'] = 'http://' + m.group('img')
+            item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
             item['plot'] = m.group('plot')
             item['info'] = m.group('plot')
@@ -291,11 +293,11 @@ class MojevideoContentProvider(ContentProvider):
         data = util.substr(page,
                            '<div id="video_sim">',
                            '</div')
-        pattern = '<a href="(?P<url>[^"]+)"[^<]+<img.*?data-src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"'
+        pattern = '<a href="(?P<url>[^"]+)"[^<]*<img.*?src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
             item['title'] = m.group('title')
-            item['img'] = 'http://' + m.group('img')
+            item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
             self._filter(result, item)
         return result
