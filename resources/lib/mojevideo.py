@@ -18,6 +18,7 @@
 # *
 # */
 
+import html
 import re
 import urllib.request, urllib.error, urllib.parse
 import http.cookiejar
@@ -101,9 +102,9 @@ class MojevideoContentProvider(ContentProvider):
         comment_page = BeautifulSoup(self.fetch_page('https://www.mojevideo.sk/f_xmlhttp.php?p={0}'.format(fa)), 'html.parser')
         comments = ''
         for comment in comment_page.select('.tp'):
-            comment_author = comment.previousSibling.previousSibling.a.text
+            comment_author = html.unescape(comment.previousSibling.previousSibling.a.text)
             comment_date = comment.previousSibling.previousSibling.span.text
-            comment_text = comment.text
+            comment_text = html.unescape(comment.text)
             indent = (len(list(comment.parents)) - 4)* ' '
             comments += '{indent}[B]{comment_author}[/B] {comment_date}\n{indent}{comment_text}\n\n'.format(indent=indent, comment_author=comment_author, comment_date=comment_date, comment_text=comment_text)
         xbmcgui.Dialog().textviewer('Komentáre', comments)
@@ -120,6 +121,7 @@ class MojevideoContentProvider(ContentProvider):
         else:
             plot = '-- undefined --'
         plot = plot.replace('<br />', '')
+        plot = html.unescape(plot)
         xbmcgui.Dialog().textviewer('Popis', plot)
         return []
 
@@ -134,12 +136,12 @@ class MojevideoContentProvider(ContentProvider):
             if 'id="im' in m.group('id') and not (over18 == 'true'):
                 continue
             item = self.video_item()
-            item['title'] = m.group('title')
+            item['title'] = html.unescape(m.group('title'))
             item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
-            item['plot'] = m.group('plot')
-            item['info'] = m.group('plot')
+            item['plot'] = html.unescape(m.group('plot'))
+            item['info'] = html.unescape(m.group('plot'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'},
                             'Komentáre': {'list': '#comments#' + item['url'],
@@ -176,7 +178,7 @@ class MojevideoContentProvider(ContentProvider):
             if m.group('url') == '#':
                 break
             item = self.dir_item()
-            item['title'] = m.group('name')
+            item['title'] = html.unescape(m.group('name'))
             item['url'] = m.group('url')
             result.append(item)
         over18 = __addon__.getSetting('over18')
@@ -196,7 +198,7 @@ class MojevideoContentProvider(ContentProvider):
         # pattern = '<a href="(?P<url>/video/[^"]+)" title="(?P<title>[^"]+)".*?<img src="(?P<img>[^"]+?)"(?P<id>.*?)<span>(?P<duration>[^<]+)</span>.*?</div>.*?<p class="c">(?P<plot>[^<]+)<'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
-            item['title'] = m.group('title')
+            item['title'] = html.unescape(m.group('title'))
             item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
@@ -243,11 +245,11 @@ class MojevideoContentProvider(ContentProvider):
             over18 = __addon__.getSetting('over18')
             if 'id="im' in m.group('id') and not (over18 == 'true'):
                 continue
-            item['title'] = m.group('title')
+            item['title'] = html.unescape(m.group('title'))
             item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
-            item['plot'] = m.group('plot')
-            item['info'] = m.group('plot')
+            item['plot'] = html.unescape(m.group('plot'))
+            item['info'] = html.unescape(m.group('plot'))
             item['duration'] = self.mmss_to_seconds(m.group('duration'))
             item['menu'] = {'$30060': {'list': '#related#' + item['url'],
                                        'action-type': 'list'},
@@ -296,7 +298,7 @@ class MojevideoContentProvider(ContentProvider):
         pattern = '<a href="(?P<url>[^"]+)"[^<]*<img.*?src="(?P<img>[^"]+)" alt="(?P<title>[^"]+)"'
         for m in re.finditer(pattern, data, re.IGNORECASE | re.DOTALL):
             item = self.video_item()
-            item['title'] = m.group('title')
+            item['title'] = html.unescape(m.group('title'))
             item['img'] = 'https:' + m.group('img')
             item['url'] = m.group('url')
             self._filter(result, item)

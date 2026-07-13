@@ -1,3 +1,5 @@
+[B]0.9.3:[/B]
+Fix broken HTML entities in title/plot/comments
 [B]0.9.2:[/B]
 Fix newest/search/related listings after website redesign
 Fix broken thumbnail URLs (protocol-relative images)
